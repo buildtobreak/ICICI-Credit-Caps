@@ -20,7 +20,9 @@
 <body class="min-h-screen bg-gradient-to-br from-sky-50 to-indigo-100 flex items-center justify-center p-6 font-sans">
   <main x-data="capCalc()" class="w-full max-w-3xl bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 ring-1 ring-indigo-200">
     <h1 class="text-3xl font-extrabold text-indigo-700 text-center mb-2 tracking-tight">ICICI Accelerated Reward Points Calculator</h1>
-    <p class="text-center text-gray-600 mb-6">Track remaining accelerated head‑room on ICICI premium cards.</p>
+    <p class="text-center text-gray-600 mb-2">Track remaining accelerated head‑room on ICICI premium cards.</p>
+    <!-- Cap display -->
+    <p class="text-center text-indigo-600 font-semibold mb-6" x-text="capDisplay"></p>
 
     <div class="mb-8">
       <label class="block text-sm font-semibold text-gray-700 mb-2" for="cardSelect">Choose Your Card</label>
@@ -37,7 +39,7 @@
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.293l3.71-4.06a.75.75 0 111.08 1.04l-4.24 4.63a.75.75 0 01-1.08 0L5.25 8.27a.75.75 0 01-.02-1.06z" clip-rule="evenodd" /></svg>
         </div>
       </div>
-      <p class="text-xs text-gray-500 mt-2" x-text="card === 'EPM' ? 'Monthly cap 18 000 pts • Daily cap 10 000 pts' : 'Monthly cap 15 000 pts • Daily cap 8 000 pts'"></p>
+      <!-- Removed inline cap note to avoid duplication -->
     </div>
 
     <div class="grid gap-6 sm:grid-cols-2 mb-6">
@@ -87,9 +89,31 @@
         hotelSpend: 0,
         monthlyCap: 18000,
         dailyCap: 10000,
+
         get usedVoucherBonus() { return this.voucherSpend * 0.15; },
         get usedHotelBonus() { return this.hotelSpend * 0.33; },
         get usedBonus() { return this.usedVoucherBonus + this.usedHotelBonus; },
         get remainingBonus() { return Math.max(Math.floor(this.monthlyCap - this.usedBonus), 0); },
         get remainingVoucherSpend() { return Math.floor(this.remainingBonus / 0.15); },
-        get remainingHotelSpend() { return Math.floor(this.remainingBonus / 0.33
+        get remainingHotelSpend() { return Math.floor(this.remainingBonus / 0.33); },
+        get dailyRemainingBonus() { return Math.max(Math.min(this.dailyCap - this.usedBonus, this.remainingBonus), 0); },
+        get dailyVoucherSpend() { return Math.floor(this.dailyRemainingBonus / 0.15); },
+        get dailyHotelSpend() { return Math.floor(this.dailyRemainingBonus / 0.33); },
+        get capDisplay() { return `Monthly cap ${this.monthlyCap.toLocaleString()} pts • Daily cap ${this.dailyCap.toLocaleString()} pts`; },
+
+        setCaps() {
+          if (this.card === 'EPM') {
+            this.monthlyCap = 18000;
+            this.dailyCap = 10000;
+          } else {
+            this.monthlyCap = 15000;
+            this.dailyCap = 8000;
+          }
+          this.recalc();
+        },
+        recalc() {}
+      };
+    }
+  </script>
+</body>
+</html>
